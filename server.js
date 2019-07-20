@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 
 // Bring the route file
 const items = require("./routes/api/items");
@@ -9,7 +8,7 @@ const items = require("./routes/api/items");
 const app = express();
 
 // body parser have some middleware
-app.use(bodyParser.json());
+app.use(express.json());
 
 // DB config
 const db = require("./config/keys").mongoURI;
