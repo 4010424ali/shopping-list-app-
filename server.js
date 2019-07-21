@@ -1,8 +1,6 @@
-const express = require("express");
-const mongoose = require("mongoose");
-
-// Bring the route file
-const items = require("./routes/api/items");
+const express = require('express');
+const mongoose = require('mongoose');
+const config = require('config');
 
 // init the app
 const app = express();
@@ -11,17 +9,20 @@ const app = express();
 app.use(express.json());
 
 // DB config
-const db = require("./config/keys").mongoURI;
+const db = config.get('mongoURI');
 
 // Connect to Mongo
 mongoose
   .connect(db, {
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    useCreateIndex: true
   })
-  .then(() => console.log("Mongo is connected"))
+  .then(() => console.log('Mongo is connected'))
   .catch(err => console.log(err));
 
-app.use("/api/items", items);
+app.use('/api/items', require('./routes/api/items'));
+app.use('/api/users', require('./routes/api/users'));
+app.use('/api/auth', require('./routes/api/auth'));
 
 const port = process.env.PORT || 5000;
 

@@ -1,0 +1,67 @@
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcryptjs');
+const config = require('config');
+const jwt = require('jsonwebtoken');
+
+// bring the auth middleware
+const auth = require('../../middleware/auth');
+
+// item models
+const User = require('../../models/User');
+
+// @route /api/auth
+// @desc  Authe the user
+// @access Public
+router.post('/', (req, res) => {
+  const { email, password } = req.body;
+
+  // Simple Valodation
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Please enter all field' });
+  }
+
+  // Check the user
+  User.findOne({ email }).then(user => {
+    if (!user) {
+      return res.status(400).json({ msg: 'User Does not exists' });
+    }
+
+    // validate password
+    bcrypt.compare(password, user.password).then(isMatch => {
+      if (!isMatch) {
+        return res.status(400).json({ msg: 'invalid credentials' });
+      }
+      jwt.sign(
+        { id: user._id },
+        config.get('jwtSecret'),
+        { expiresIn: 3600 },
+        (err, token) => {
+          if (err) throw err;
+          res.json({
+            user: {
+              token,
+              id: user._id,
+              name: user.name,
+              email: user.email
+            }
+          });
+        }
+      );
+    });
+  });
+});
+
+// @route  GET /api/auth/user
+// @desc  Authe the user
+// @access Private
+router.get('/user', auth, (req, res) => {
+  User.findById(req.user.id)
+    .select('-password')
+    .then(user => {
+      res.json(user);
+    })
+    .catch(err => console.error(err));
+});
+
+module.exports = router;
