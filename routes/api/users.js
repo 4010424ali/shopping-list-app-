@@ -15,7 +15,7 @@ router.post('/', (req, res) => {
 
   // Simple Valodation
   if (!name || !email || !password) {
-    return res.status(400).json({ error: 'Please enter all field' });
+    return res.status(400).json({ msg: 'Please enter all field' });
   }
 
   // Check the user
@@ -46,8 +46,8 @@ router.post('/', (req, res) => {
               (err, token) => {
                 if (err) throw err;
                 res.json({
+                  token,
                   user: {
-                    token,
                     id: user._id,
                     name: user.name,
                     email: user.email
